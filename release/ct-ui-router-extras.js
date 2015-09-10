@@ -601,7 +601,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
           // Now calculate the states that will be inactive if this transition succeeds.
           // We have already pushed the transitionType == "inactivate" states to 'inactives'.
           // Second, add all the existing inactive states
-          inactives = inactives.concat(map(inactiveStates, angular.identity));
+          inactives = map(inactiveStates, angular.identity).concat(inactives);
           // Finally, remove any states that are scheduled for "exit" or "enter", "reactivate", or "updateStateParams"
           inactives = inactives.filter(function(state) {
             return exitingStates.indexOf(state) === -1 && enteringStates.indexOf(state) === -1;
@@ -1559,8 +1559,8 @@ angular.module("ct.ui.router.extras.sticky").config(
 })(angular);
 
 angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core', 'ct.ui.router.extras.transition' ]).service("$previousState",
-  [ '$rootScope', '$state',
-    function ($rootScope, $state) {
+  [ '$rootScope', '$state', '$q',
+    function ($rootScope, $state, $q) {
       var previous = null, lastPrevious = null, memos = {};
 
       $rootScope.$on("$transitionStart", function(evt, $transition$) {
@@ -1584,6 +1584,9 @@ angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core', 'ct
         },
         go: function (memoName, options) {
           var to = $previousState.get(memoName);
+          if (memoName && !to) {
+            return $q.reject(new Error('undefined memo'));
+          }
           return $state.go(to.state, to.params, options);
         },
         memo: function (memoName, defaultStateName, defaultStateParams) {

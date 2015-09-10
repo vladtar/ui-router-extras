@@ -249,7 +249,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
           // Now calculate the states that will be inactive if this transition succeeds.
           // We have already pushed the transitionType == "inactivate" states to 'inactives'.
           // Second, add all the existing inactive states
-          inactives = inactives.concat(map(inactiveStates, angular.identity));
+          inactives = map(inactiveStates, angular.identity).concat(inactives);
           // Finally, remove any states that are scheduled for "exit" or "enter", "reactivate", or "updateStateParams"
           inactives = inactives.filter(function(state) {
             return exitingStates.indexOf(state) === -1 && enteringStates.indexOf(state) === -1;
